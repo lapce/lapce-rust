@@ -23,7 +23,6 @@ pub struct PluginInfo {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
     language_id: String,
-    lsp_server: String,
     options: Option<Value>,
 }
 

@@ -1,0 +1,12 @@
+name = "lapce-rust"
+display-name = "Rust"
+description = "Rust for Lapce: powered by Rust Analyzer"
+version = "0.1"
+author = "Lapce"
+wasm = "lapce-rust.wasm"
+
+[configuration]
+language_id = "rust"
+[configuration.options.diagnostics]
+enable = false
+enableExperimental = false
