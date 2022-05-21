@@ -52,7 +52,7 @@ impl LapcePlugin for State {
         );
         if !PathBuf::from(&file_name).exists() {
             let url = format!(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-02-28/{}.gz",
+                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-05-17/{}.gz",
                 file_name
             );
             let gz_file = PathBuf::from(file_name.clone() + ".gz");

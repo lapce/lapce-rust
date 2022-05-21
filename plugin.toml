@@ -1,7 +1,7 @@
 name = "lapce-rust"
 display-name = "Rust"
 description = "Rust for Lapce: powered by Rust Analyzer"
-version = "0.1.6"
+version = "0.1.7"
 author = "Lapce"
 repository = "lapce/lapce-rust"
 wasm = "lapce-rust.wasm"
