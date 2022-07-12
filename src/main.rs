@@ -57,6 +57,10 @@ impl LapcePlugin for State {
             );
             let gz_file = PathBuf::from(file_name.clone() + ".gz");
 
+            if gz_file.exists() {
+                std::fs::remove_file(gz_file);
+            }
+            
             {
                 send_notification(
                     "download_file",
@@ -66,6 +70,7 @@ impl LapcePlugin for State {
                     }),
                 );
                 if !gz_file.exists() {
+                    std::fs::remove_file(&lock_file);
                     return;
                 }
                 eprintln!("start to unzip");
