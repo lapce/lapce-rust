@@ -58,9 +58,9 @@ impl LapcePlugin for State {
             let gz_file = PathBuf::from(file_name.clone() + ".gz");
 
             if gz_file.exists() {
-                std::fs::remove_file(gz_file);
+                std::fs::remove_file(&gz_file);
             }
-            
+
             {
                 send_notification(
                     "download_file",
