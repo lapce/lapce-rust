@@ -43,7 +43,7 @@ impl LapcePlugin for State {
             _ => return,
         };
         let file_name = format!("rust-analyzer-{}-{}", arch, os);
-        let lock_file = PathBuf::from("donwload.lock");
+        let lock_file = PathBuf::from("download.lock");
         send_notification(
             "lock_file",
             &json!({
