@@ -1,8 +1,6 @@
 use std::{
     fs::File,
-    io::{self, Read, Write},
-    path::PathBuf,
-    process::Command,
+    path::PathBuf
 };
 
 use flate2::read::GzDecoder;
@@ -58,7 +56,7 @@ impl LapcePlugin for State {
             let gz_file = PathBuf::from(file_name.clone() + ".gz");
 
             if gz_file.exists() {
-                std::fs::remove_file(&gz_file);
+                std::fs::remove_file(&gz_file).ok();
             }
 
             {
@@ -70,7 +68,7 @@ impl LapcePlugin for State {
                     }),
                 );
                 if !gz_file.exists() {
-                    std::fs::remove_file(&lock_file);
+                    std::fs::remove_file(&lock_file).ok();
                     return;
                 }
                 eprintln!("start to unzip");
@@ -84,9 +82,9 @@ impl LapcePlugin for State {
                     }),
                 );
             }
-            std::fs::remove_file(gz_file);
+            std::fs::remove_file(gz_file).ok();
         }
-        std::fs::remove_file(&lock_file);
+        std::fs::remove_file(&lock_file).ok();
 
         start_lsp(&file_name, "rust", info.configuration.options);
     }
