@@ -1,8 +1,6 @@
 use std::{
     fs::File,
-    io::{self, Read, Write},
-    path::PathBuf,
-    process::Command,
+    path::PathBuf
 };
 
 use flate2::read::GzDecoder;
@@ -43,7 +41,7 @@ impl LapcePlugin for State {
             _ => return,
         };
         let file_name = format!("rust-analyzer-{}-{}", arch, os);
-        let lock_file = PathBuf::from("donwload.lock");
+        let lock_file = PathBuf::from("download.lock");
         send_notification(
             "lock_file",
             &json!({
@@ -52,13 +50,13 @@ impl LapcePlugin for State {
         );
         if !PathBuf::from(&file_name).exists() {
             let url = format!(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-07-18/{}.gz",
+                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-08-01/{}.gz",
                 file_name
             );
             let gz_file = PathBuf::from(file_name.clone() + ".gz");
 
             if gz_file.exists() {
-                std::fs::remove_file(&gz_file);
+                std::fs::remove_file(&gz_file).ok();
             }
 
             {
@@ -70,7 +68,7 @@ impl LapcePlugin for State {
                     }),
                 );
                 if !gz_file.exists() {
-                    std::fs::remove_file(&lock_file);
+                    std::fs::remove_file(&lock_file).ok();
                     return;
                 }
                 eprintln!("start to unzip");
@@ -84,9 +82,9 @@ impl LapcePlugin for State {
                     }),
                 );
             }
-            std::fs::remove_file(gz_file);
+            std::fs::remove_file(gz_file).ok();
         }
-        std::fs::remove_file(&lock_file);
+        std::fs::remove_file(&lock_file).ok();
 
         start_lsp(&file_name, "rust", info.configuration.options);
     }
