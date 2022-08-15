@@ -1,0 +1,14 @@
+name = "lapce-rust"
+version = "0.1.8"
+publisher = "Lapce"
+display-name = "Rust"
+description = "Rust for Lapce: powered by Rust Analyzer"
+wasm = "lapce-rust.wasm"
+
+[configuration.diagnostics]
+default = true
+description = "Whether to show native rust-analyzer diagnostics."
+
+[configuration.checkOnSave]
+default = "check"
+description = "Cargo command to use for `cargo check`."
