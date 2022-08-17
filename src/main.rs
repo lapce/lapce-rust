@@ -10,7 +10,7 @@ use flate2::read::GzDecoder;
 use lapce_plugin::{register_plugin, Http, LapcePlugin, PLUGIN_RPC};
 use lsp_types::{
     request::{Initialize, Request},
-    InitializeParams,
+    InitializeParams, Url,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -34,6 +34,18 @@ pub struct Configuration {
 register_plugin!(State);
 
 fn initialize(params: InitializeParams) -> Result<()> {
+    if let Some(options) = params.initialization_options.as_ref() {
+        if let Some(server_path) = options.get("serverPath") {
+            if let Some(server_path) = server_path.as_str() {
+                PLUGIN_RPC.start_lsp(
+                    Url::parse(&format!("urn:{}", server_path))?,
+                    "rust",
+                    params.initialization_options,
+                );
+                return Ok(());
+            }
+        }
+    }
     let arch = match std::env::var("ARCH").as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
@@ -64,7 +76,16 @@ fn initialize(params: InitializeParams) -> Result<()> {
         std::fs::remove_file(&gz_path)?;
     }
 
-    PLUGIN_RPC.start_lsp(file_path, "rust", params.initialization_options);
+    PLUGIN_RPC.stderr(&format!(
+        "{:?}",
+        std::process::Command::new("./rust-analyzer-aarch64-apple-darwin")
+            .arg("--version")
+            .output()
+    ));
+
+    let volt_uri = std::env::var("VOLT_URI")?;
+    let server_path = Url::parse(&volt_uri)?.join(&file_name)?;
+    PLUGIN_RPC.start_lsp(server_path, "rust", params.initialization_options);
     Ok(())
 }
 
