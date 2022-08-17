@@ -157,7 +157,6 @@ dependencies = [
  "anyhow",
  "flate2",
  "lapce-plugin",
- "lsp-types",
  "serde",
  "serde_json",
 ]

@@ -2,10 +2,12 @@ use std::{fs::File, path::PathBuf};
 
 use anyhow::Result;
 use flate2::read::GzDecoder;
-use lapce_plugin::{register_plugin, Http, LapcePlugin, PLUGIN_RPC};
-use lsp_types::{
-    request::{Initialize, Request},
-    InitializeParams, Url,
+use lapce_plugin::{
+    psp_types::{
+        lsp_types::{request::Initialize, InitializeParams, Url},
+        Request,
+    },
+    register_plugin, Http, LapcePlugin, PLUGIN_RPC,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
