@@ -1,9 +1,4 @@
-use std::{
-    error::Error,
-    fs::File,
-    io::{self, Read, Write},
-    path::PathBuf,
-};
+use std::{fs::File, path::PathBuf};
 
 use anyhow::Result;
 use flate2::read::GzDecoder;
@@ -13,7 +8,7 @@ use lsp_types::{
     InitializeParams, Url,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 
 #[derive(Default)]
 struct State {}
@@ -65,9 +60,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
             "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-07-18/{}.gz",
             file_name
         );
-        PLUGIN_RPC.stderr(&format!("url {url}"));
         let mut resp = Http::get(&url)?;
-        PLUGIN_RPC.stderr(&format!("status code {}", resp.status_code));
         let body = resp.body_read_all()?;
         std::fs::write(&gz_path, body)?;
         let mut gz = GzDecoder::new(File::open(&gz_path)?);
@@ -75,13 +68,6 @@ fn initialize(params: InitializeParams) -> Result<()> {
         std::io::copy(&mut gz, &mut file)?;
         std::fs::remove_file(&gz_path)?;
     }
-
-    PLUGIN_RPC.stderr(&format!(
-        "{:?}",
-        std::process::Command::new("./rust-analyzer-aarch64-apple-darwin")
-            .arg("--version")
-            .output()
-    ));
 
     let volt_uri = std::env::var("VOLT_URI")?;
     let server_path = Url::parse(&volt_uri)?.join(&file_name)?;
@@ -98,66 +84,5 @@ impl LapcePlugin for State {
             }
             _ => {}
         }
-    }
-
-    fn initialize(&mut self, info: serde_json::Value) {
-        // let arch = match info.arch.as_str() {
-        //     "x86_64" => "x86_64",
-        //     "aarch64" => "aarch64",
-        //     _ => return,
-        // };
-        // let os = match info.os.as_str() {
-        //     "linux" => "unknown-linux-gnu",
-        //     "macos" => "apple-darwin",
-        //     "windows" => "pc-windows-msvc",
-        //     _ => return,
-        // };
-        // let file_name = format!("rust-analyzer-{}-{}", arch, os);
-        // let lock_file = PathBuf::from("donwload.lock");
-        // send_notification(
-        //     "lock_file",
-        //     &json!({
-        //         "path": &lock_file,
-        //     }),
-        // );
-        // if !PathBuf::from(&file_name).exists() {
-        //     let url = format!(
-        //         "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-07-18/{}.gz",
-        //         file_name
-        //     );
-        //     let gz_file = PathBuf::from(file_name.clone() + ".gz");
-
-        //     if gz_file.exists() {
-        //         std::fs::remove_file(&gz_file);
-        //     }
-
-        //     {
-        //         // send_notification(
-        //         //     "download_file",
-        //         //     &json!({
-        //         //         "url": url,
-        //         //         "path": gz_file,
-        //         //     }),
-        //         // );
-        //         if !gz_file.exists() {
-        //             std::fs::remove_file(&lock_file);
-        //             return;
-        //         }
-        //         eprintln!("start to unzip");
-        //         let mut gz = GzDecoder::new(File::open(&gz_file).unwrap());
-        //         let mut lsp_file = File::create(&file_name).unwrap();
-        //         std::io::copy(&mut gz, &mut lsp_file).unwrap();
-        //         // send_notification(
-        //         //     "make_file_executable",
-        //         //     &json!({
-        //         //         "path": file_name,
-        //         //     }),
-        //         // );
-        //     }
-        //     std::fs::remove_file(gz_file);
-        // }
-        // std::fs::remove_file(&lock_file);
-
-        // PLUGIN_RPC.start_lsp(PathBuf::from(file_name), "rust", info.configuration.options);
     }
 }
