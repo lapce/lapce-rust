@@ -43,7 +43,7 @@ impl LapcePlugin for State {
             _ => return,
         };
         let file_name = format!("rust-analyzer-{}-{}", arch, os);
-        let lock_file = PathBuf::from("donwload.lock");
+        let lock_file = PathBuf::from("download.lock");
         send_notification(
             "lock_file",
             &json!({
@@ -52,7 +52,7 @@ impl LapcePlugin for State {
         );
         if !PathBuf::from(&file_name).exists() {
             let url = format!(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-07-18/{}.gz",
+                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-08-22/{}.gz",
                 file_name
             );
             let gz_file = PathBuf::from(file_name.clone() + ".gz");
