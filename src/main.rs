@@ -31,7 +31,6 @@ pub struct Configuration {
 register_plugin!(State);
 
 fn initialize(params: InitializeParams) -> Result<()> {
-    PLUGIN_RPC.stderr("start to initialize");
     if let Some(options) = params.initialization_options.as_ref() {
         if let Some(server_path) = options.get("serverPath") {
             if let Some(server_path) = server_path.as_str() {
@@ -46,8 +45,6 @@ fn initialize(params: InitializeParams) -> Result<()> {
             }
         }
     }
-    PLUGIN_RPC.stderr(&format!("arch {:?}", std::env::var("ARCH")));
-    PLUGIN_RPC.stderr(&format!("os {:?}", std::env::var("OS")));
     let arch = match std::env::var("ARCH").as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
@@ -57,7 +54,6 @@ fn initialize(params: InitializeParams) -> Result<()> {
         Ok("linux") => "unknown-linux-gnu",
         Ok("macos") => "apple-darwin",
         Ok("windows") => "pc-windows-msvc",
-        Ok("Windows_NT") => "pc-windows-msvc",
         _ => return Ok(()),
     };
     let file_name = format!("rust-analyzer-{}-{}", arch, os);
@@ -88,7 +84,7 @@ impl LapcePlugin for State {
         match method.as_str() {
             Initialize::METHOD => {
                 let params: InitializeParams = serde_json::from_value(params).unwrap();
-                PLUGIN_RPC.stderr(&format!("initilize result {:?}", initialize(params)));
+                let _ = initialize(params);
             }
             _ => {}
         }
