@@ -57,7 +57,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
         Ok("linux") => "unknown-linux-gnu",
         Ok("macos") => "apple-darwin",
         Ok("windows") => "pc-windows-msvc",
-        Ok("windows_NT") => "pc-windows-msvc",
+        Ok("Windows_NT") => "pc-windows-msvc",
         _ => return Ok(()),
     };
     let file_name = format!("rust-analyzer-{}-{}", arch, os);
