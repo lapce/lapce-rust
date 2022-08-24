@@ -45,6 +45,8 @@ fn initialize(params: InitializeParams) -> Result<()> {
             }
         }
     }
+    PLUGIN_RPC.stderr(&format!("arch {:?}", std::env::var("ARCH")));
+    PLUGIN_RPC.stderr(&format!("os {:?}", std::env::var("OS")));
     let arch = match std::env::var("ARCH").as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
