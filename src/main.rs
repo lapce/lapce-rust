@@ -31,6 +31,7 @@ pub struct Configuration {
 register_plugin!(State);
 
 fn initialize(params: InitializeParams) -> Result<()> {
+    PLUGIN_RPC.stderr("start to initialize");
     if let Some(options) = params.initialization_options.as_ref() {
         if let Some(server_path) = options.get("serverPath") {
             if let Some(server_path) = server_path.as_str() {
