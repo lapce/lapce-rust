@@ -45,12 +45,12 @@ fn initialize(params: InitializeParams) -> Result<()> {
             }
         }
     }
-    let arch = match std::env::var("ARCH").as_deref() {
+    let arch = match std::env::var("VOLT_ARCH").as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
         _ => return Ok(()),
     };
-    let os = match std::env::var("OS").as_deref() {
+    let os = match std::env::var("VOLT_OS").as_deref() {
         Ok("linux") => "unknown-linux-gnu",
         Ok("macos") => "apple-darwin",
         Ok("windows") => "pc-windows-msvc",
