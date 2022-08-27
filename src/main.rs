@@ -32,15 +32,17 @@ register_plugin!(State);
 
 fn initialize(params: InitializeParams) -> Result<()> {
     if let Some(options) = params.initialization_options.as_ref() {
-        if let Some(server_path) = options.get("serverPath") {
-            if let Some(server_path) = server_path.as_str() {
-                if !server_path.is_empty() {
-                    PLUGIN_RPC.start_lsp(
-                        Url::parse(&format!("urn:{}", server_path))?,
-                        "rust",
-                        params.initialization_options,
-                    );
-                    return Ok(());
+        if let Some(configuration) = options.get("configuration") {
+            if let Some(server_path) = configuration.get("serverPath") {
+                if let Some(server_path) = server_path.as_str() {
+                    if !server_path.is_empty() {
+                        PLUGIN_RPC.start_lsp(
+                            Url::parse(&format!("urn:{}", server_path))?,
+                            "rust",
+                            params.initialization_options,
+                        );
+                        return Ok(());
+                    }
                 }
             }
         }
