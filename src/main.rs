@@ -61,7 +61,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     let gz_path = PathBuf::from(file_name.clone() + ".gz");
     if !file_path.exists() {
         let url = format!(
-            "https://github.com/rust-analyzer/rust-analyzer/releases/download/2022-07-18/{}.gz",
+            "https://github.com/rust-lang/rust-analyzer/releases/download/2022-08-29/{}.gz",
             file_name
         );
         let mut resp = Http::get(&url)?;
