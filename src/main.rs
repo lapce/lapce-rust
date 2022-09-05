@@ -37,6 +37,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
                 if !server_path.is_empty() {
                     PLUGIN_RPC.start_lsp(
                         Url::parse(&format!("urn:{}", server_path))?,
+                        Vec::new(),
                         "rust",
                         params.initialization_options,
                     );
@@ -75,7 +76,12 @@ fn initialize(params: InitializeParams) -> Result<()> {
 
     let volt_uri = std::env::var("VOLT_URI")?;
     let server_path = Url::parse(&volt_uri)?.join(&file_name)?;
-    PLUGIN_RPC.start_lsp(server_path, "rust", params.initialization_options);
+    PLUGIN_RPC.start_lsp(
+        server_path,
+        Vec::new(),
+        "rust",
+        params.initialization_options,
+    );
     Ok(())
 }
 
