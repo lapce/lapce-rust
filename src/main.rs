@@ -4,7 +4,7 @@ use anyhow::Result;
 use flate2::read::GzDecoder;
 use lapce_plugin::{
     psp_types::{
-        lsp_types::{request::Initialize, InitializeParams, Url},
+        lsp_types::{request::Initialize, DocumentFilter, InitializeParams, Url},
         Request,
     },
     register_plugin, Http, LapcePlugin, PLUGIN_RPC,
@@ -38,7 +38,11 @@ fn initialize(params: InitializeParams) -> Result<()> {
                     PLUGIN_RPC.start_lsp(
                         Url::parse(&format!("urn:{}", server_path))?,
                         Vec::new(),
-                        "rust",
+                        vec![DocumentFilter {
+                            language: Some("rust".to_string()),
+                            scheme: None,
+                            pattern: None,
+                        }],
                         params.initialization_options,
                     );
                     return Ok(());
@@ -79,7 +83,11 @@ fn initialize(params: InitializeParams) -> Result<()> {
     PLUGIN_RPC.start_lsp(
         server_path,
         Vec::new(),
-        "rust",
+        vec![DocumentFilter {
+            language: Some("rust".to_string()),
+            scheme: None,
+            pattern: None,
+        }],
         params.initialization_options,
     );
     Ok(())
