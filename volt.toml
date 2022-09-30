@@ -1,9 +1,13 @@
 name = "lapce-rust"
-version = "0.1.11"
+version = "0.1.12"
 author = "Lapce"
 display-name = "Rust"
 description = "Rust for Lapce: powered by Rust Analyzer"
 wasm = "lapce-rust.wasm"
+
+[activation]
+language = ["rust"]
+workspace-contains = ["*/Cargo.toml"]
 
 [configuration.diagnostics]
 default = true
