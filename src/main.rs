@@ -94,7 +94,8 @@ fn initialize(params: InitializeParams) -> Result<()> {
 }
 
 impl LapcePlugin for State {
-    fn handle_request(&mut self, id: u64, method: String, params: Value) {
+    fn handle_request(&mut self, _id: u64, method: String, params: Value) {
+        #[allow(clippy::single_match)]
         match method.as_str() {
             Initialize::METHOD => {
                 let params: InitializeParams = serde_json::from_value(params).unwrap();
