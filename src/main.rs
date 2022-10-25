@@ -31,25 +31,33 @@ pub struct Configuration {
 register_plugin!(State);
 
 fn initialize(params: InitializeParams) -> Result<()> {
-    if let Some(options) = params.initialization_options.as_ref() {
-        if let Some(server_path) = options.get("serverPath") {
-            if let Some(server_path) = server_path.as_str() {
-                if !server_path.is_empty() {
-                    PLUGIN_RPC.start_lsp(
-                        Url::parse(&format!("urn:{}", server_path))?,
-                        Vec::new(),
-                        vec![DocumentFilter {
-                            language: Some("rust".to_string()),
-                            scheme: None,
-                            pattern: None,
-                        }],
-                        params.initialization_options,
-                    );
-                    return Ok(());
-                }
+    let server_path = params
+        .initialization_options
+        .as_ref()
+        .and_then(|options| options.get("serverPath"))
+        .and_then(|server_path| server_path.as_str())
+        .and_then(|server_path| {
+            if !server_path.is_empty() {
+                Some(server_path)
+            } else {
+                None
             }
-        }
+        });
+
+    if let Some(server_path) = server_path {
+        PLUGIN_RPC.start_lsp(
+            Url::parse(&format!("urn:{}", server_path))?,
+            Vec::new(),
+            vec![DocumentFilter {
+                language: Some("rust".to_string()),
+                scheme: None,
+                pattern: None,
+            }],
+            params.initialization_options,
+        );
+        return Ok(());
     }
+
     let arch = match std::env::var("VOLT_ARCH").as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
