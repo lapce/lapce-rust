@@ -116,17 +116,19 @@ dependencies = [
 
 [[package]]
 name = "lapce-plugin"
-version = "0.1.0"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c169cb693c2c10ff40addb0429697d90f506c938d405932b2c46e529bcb555c"
 dependencies = [
  "anyhow",
  "bytes",
  "http",
  "jsonrpc-lite",
+ "lapce-wasi-experimental-http",
  "once_cell",
  "psp-types",
  "serde",
  "serde_json",
- "wasi-experimental-http",
 ]
 
 [[package]]
@@ -138,6 +140,19 @@ dependencies = [
  "lapce-plugin",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lapce-wasi-experimental-http"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "caf7608ac13ab536e2481cdbe0cb4e6ecf34f19e0b3dcd6bcd002fe959ce810e"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "http",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]
@@ -214,7 +229,8 @@ dependencies = [
 [[package]]
 name = "psp-types"
 version = "0.1.0"
-source = "git+https://github.com/lapce/psp-types?branch=master#2513ff3c510377b2c2a003892d07bc91bec00c7a"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edd2a687afe6f35676710d6c949faa5d0be0a2098dd81bb9dea1922cce859de"
 dependencies = [
  "lsp-types",
  "serde",
@@ -389,16 +405,4 @@ dependencies = [
  "matches",
  "percent-encoding",
  "serde",
-]
-
-[[package]]
-name = "wasi-experimental-http"
-version = "0.9.0"
-source = "git+https://github.com/lapce/wasi-experimental-http#3685f0893ef19c1cca5b16a11ba01ff7ade14a5f"
-dependencies = [
- "anyhow",
- "bytes",
- "http",
- "thiserror",
- "tracing",
 ]
