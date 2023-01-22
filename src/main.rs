@@ -94,7 +94,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
         vec![DocumentFilter {
             language: Some("rust".to_string()),
             scheme: None,
-            pattern: None,
+            pattern: Some("**.rs".to_string()),
         }],
         params.initialization_options,
     );
