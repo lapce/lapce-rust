@@ -44,6 +44,19 @@ fn initialize(params: InitializeParams) -> Result<()> {
             }
         });
 
+    let document_filter = vec![
+        DocumentFilter {
+            language: Some("rust".to_string()),
+            scheme: Some("file".to_string()),
+            pattern: Some("**/**.rs".to_string()),
+        },
+        DocumentFilter {
+            language: Some("rust".to_string()),
+            scheme: Some("file".to_string()),
+            pattern: Some("**/Cargo.toml".to_string()),
+        },
+    ];
+
     if let Some(server_path) = server_path {
         let program = match std::env::var("VOLT_OS").as_deref() {
             Ok("windows") => "where",
@@ -63,11 +76,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
         PLUGIN_RPC.start_lsp(
             Url::parse(&format!("urn:{}", server_path))?,
             Vec::new(),
-            vec![DocumentFilter {
-                language: Some("rust".to_string()),
-                scheme: None,
-                pattern: Some("**.rs".to_string()),
-            }],
+            document_filter,
             params.initialization_options,
         );
         return Ok(());
@@ -116,11 +125,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     PLUGIN_RPC.start_lsp(
         server_path,
         Vec::new(),
-        vec![DocumentFilter {
-            language: Some("rust".to_string()),
-            scheme: None,
-            pattern: Some("**.rs".to_string()),
-        }],
+        document_filter,
         params.initialization_options,
     );
     Ok(())
