@@ -48,26 +48,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam-channel"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2dd04ddaf88237dc3b8d8f9a3c1004b506b54b3313403944054d23c0870c521"
-dependencies = [
- "cfg-if",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-utils"
-version = "0.8.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51887d4adc7b564537b15adcfb307936f8075dfcd5f00dde9a9f1d29383682bc"
-dependencies = [
- "cfg-if",
- "once_cell",
-]
-
-[[package]]
 name = "flate2"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -136,18 +116,19 @@ dependencies = [
 
 [[package]]
 name = "lapce-plugin"
-version = "0.1.0"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c169cb693c2c10ff40addb0429697d90f506c938d405932b2c46e529bcb555c"
 dependencies = [
  "anyhow",
  "bytes",
- "crossbeam-channel",
  "http",
  "jsonrpc-lite",
+ "lapce-wasi-experimental-http",
  "once_cell",
  "psp-types",
  "serde",
  "serde_json",
- "wasi-experimental-http",
 ]
 
 [[package]]
@@ -159,6 +140,19 @@ dependencies = [
  "lapce-plugin",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lapce-wasi-experimental-http"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "caf7608ac13ab536e2481cdbe0cb4e6ecf34f19e0b3dcd6bcd002fe959ce810e"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "http",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]
@@ -235,7 +229,8 @@ dependencies = [
 [[package]]
 name = "psp-types"
 version = "0.1.0"
-source = "git+https://github.com/lapce/psp-types?branch=master#b7680c844e8faa1b79c800210b4d5526771e7de0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edd2a687afe6f35676710d6c949faa5d0be0a2098dd81bb9dea1922cce859de"
 dependencies = [
  "lsp-types",
  "serde",
@@ -410,16 +405,4 @@ dependencies = [
  "matches",
  "percent-encoding",
  "serde",
-]
-
-[[package]]
-name = "wasi-experimental-http"
-version = "0.9.0"
-source = "git+https://github.com/lapce/wasi-experimental-http#3685f0893ef19c1cca5b16a11ba01ff7ade14a5f"
-dependencies = [
- "anyhow",
- "bytes",
- "http",
- "thiserror",
- "tracing",
 ]

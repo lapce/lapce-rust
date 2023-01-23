@@ -4,7 +4,7 @@ use anyhow::Result;
 use flate2::read::GzDecoder;
 use lapce_plugin::{
     psp_types::{
-        lsp_types::{request::Initialize, DocumentFilter, InitializeParams, Url},
+        lsp_types::{request::Initialize, DocumentFilter, InitializeParams, MessageType, Url},
         Request,
     },
     register_plugin, Http, LapcePlugin, PLUGIN_RPC,
@@ -45,6 +45,21 @@ fn initialize(params: InitializeParams) -> Result<()> {
         });
 
     if let Some(server_path) = server_path {
+        let program = match std::env::var("VOLT_OS").as_deref() {
+            Ok("windows") => "where",
+            _ => "which",
+        };
+        let exits = PLUGIN_RPC
+            .execute_process(program.to_string(), vec![server_path.to_string()])
+            .map(|r| r.success)
+            .unwrap_or(false);
+        if !exits {
+            PLUGIN_RPC.window_show_message(
+                MessageType::ERROR,
+                format!("server path {server_path} couldn't be found, please check"),
+            );
+            return Ok(());
+        }
         PLUGIN_RPC.start_lsp(
             Url::parse(&format!("urn:{}", server_path))?,
             Vec::new(),
@@ -73,17 +88,27 @@ fn initialize(params: InitializeParams) -> Result<()> {
     let file_path = PathBuf::from(&file_name);
     let gz_path = PathBuf::from(file_name.clone() + ".gz");
     if !file_path.exists() {
-        let url = format!(
-            "https://github.com/rust-lang/rust-analyzer/releases/download/2022-10-31/{}.gz",
-            file_name
-        );
-        let mut resp = Http::get(&url)?;
-        let body = resp.body_read_all()?;
-        std::fs::write(&gz_path, body)?;
-        let mut gz = GzDecoder::new(File::open(&gz_path)?);
-        let mut file = File::create(&file_path)?;
-        std::io::copy(&mut gz, &mut file)?;
-        std::fs::remove_file(&gz_path)?;
+        let result: Result<()> = {
+            let url = format!(
+                "https://github.com/rust-lang/rust-analyzer/releases/download/2023-01-02/{}.gz",
+                file_name
+            );
+            let mut resp = Http::get(&url)?;
+            let body = resp.body_read_all()?;
+            std::fs::write(&gz_path, body)?;
+            let mut gz = GzDecoder::new(File::open(&gz_path)?);
+            let mut file = File::create(&file_path)?;
+            std::io::copy(&mut gz, &mut file)?;
+            std::fs::remove_file(&gz_path)?;
+            Ok(())
+        };
+        if result.is_err() {
+            PLUGIN_RPC.window_show_message(
+                MessageType::ERROR,
+                format!("can't download rust-analyzer, please use server path in the settings."),
+            );
+            return Ok(());
+        }
     }
 
     let volt_uri = std::env::var("VOLT_URI")?;
