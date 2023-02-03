@@ -6,3 +6,4 @@
 **/*.rs.bk
 
 lapce-rust.wasm
+justfile

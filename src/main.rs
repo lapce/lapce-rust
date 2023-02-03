@@ -1,13 +1,13 @@
 use std::{fs::File, path::PathBuf};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use flate2::read::GzDecoder;
 use lapce_plugin::{
     psp_types::{
-        lsp_types::{request::Initialize, DocumentFilter, InitializeParams, MessageType, Url},
+        lsp_types::{request::Initialize, DocumentFilter, InitializeParams, InitializeResult, Url},
         Request,
     },
-    register_plugin, Http, LapcePlugin, PLUGIN_RPC,
+    register_plugin, Http, LapcePlugin, VoltEnvironment, PLUGIN_RPC,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -30,7 +30,16 @@ pub struct Configuration {
 
 register_plugin!(State);
 
-fn initialize(params: InitializeParams) -> Result<()> {
+type LspParams = (Url, Vec<String>, Vec<DocumentFilter>, Option<Value>);
+
+fn calculate_lsp_params(params: Value) -> Result<LspParams> {
+    let params = serde_json::from_value::<InitializeParams>(params)?;
+    let document_filters = vec![DocumentFilter {
+        language: Some("rust".to_string()),
+        scheme: None,
+        pattern: Some("**/**.rs".to_string()),
+    }];
+
     let server_path = params
         .initialization_options
         .as_ref()
@@ -45,55 +54,48 @@ fn initialize(params: InitializeParams) -> Result<()> {
         });
 
     if let Some(server_path) = server_path {
-        let program = match std::env::var("VOLT_OS").as_deref() {
+        let program = match VoltEnvironment::operating_system().as_deref() {
             Ok("windows") => "where",
             _ => "which",
         };
-        let exits = PLUGIN_RPC
+        return match PLUGIN_RPC
             .execute_process(program.to_string(), vec![server_path.to_string()])
             .map(|r| r.success)
-            .unwrap_or(false);
-        if !exits {
-            PLUGIN_RPC.window_show_message(
-                MessageType::ERROR,
-                format!("server path {server_path} couldn't be found, please check"),
-            );
-            return Ok(());
-        }
-        PLUGIN_RPC.start_lsp(
-            Url::parse(&format!("urn:{}", server_path))?,
-            Vec::new(),
-            vec![DocumentFilter {
-                language: Some("rust".to_string()),
-                scheme: None,
-                pattern: None,
-            }],
-            params.initialization_options,
-        );
-        return Ok(());
+        {
+            Ok(true) => Ok((
+                Url::parse(&format!("urn:{server_path}"))?,
+                Vec::new(),
+                document_filters,
+                params.initialization_options,
+            )),
+            Ok(false) => Err(anyhow!(
+                "Cannot find the LSP binary at the server path provided. Please check."
+            )),
+            Err(err) => Err(anyhow!("Unable to execute command because {}", err)),
+        };
     }
 
-    let arch = match std::env::var("VOLT_ARCH").as_deref() {
+    let arch = match VoltEnvironment::architecture().as_deref() {
         Ok("x86_64") => "x86_64",
         Ok("aarch64") => "aarch64",
-        _ => return Ok(()),
+        Ok(o) => return Err(anyhow!("'{}' is not a supported architecture", o)),
+        Err(_) => return Err(anyhow!("Unable to determine the CPU architecture in use")),
     };
-    let os = match std::env::var("VOLT_OS").as_deref() {
+    let os = match VoltEnvironment::operating_system().as_deref() {
         Ok("linux") => "unknown-linux-gnu",
         Ok("macos") => "apple-darwin",
         Ok("windows") => "pc-windows-msvc",
-        _ => return Ok(()),
+        Ok(o) => return Err(anyhow!("'{}' is not a supported operating system", o)),
+        Err(_) => return Err(anyhow!("Unable to determine the operating system in use")),
     };
-    let file_name = format!("rust-analyzer-{}-{}", arch, os);
+    let file_name = format!("rust-analyzer-{arch}-{os}");
     let file_path = PathBuf::from(&file_name);
     let gz_path = PathBuf::from(file_name.clone() + ".gz");
     if !file_path.exists() {
         let result: Result<()> = {
-            let url = format!(
-                "https://github.com/rust-lang/rust-analyzer/releases/download/2023-01-02/{}.gz",
-                file_name
-            );
-            let mut resp = Http::get(&url)?;
+            let mut resp = Http::get(&format!(
+                "https://github.com/rust-lang/rust-analyzer/releases/download/2023-01-02/{file_name}.gz"
+            ))?;
             let body = resp.body_read_all()?;
             std::fs::write(&gz_path, body)?;
             let mut gz = GzDecoder::new(File::open(&gz_path)?);
@@ -102,41 +104,38 @@ fn initialize(params: InitializeParams) -> Result<()> {
             std::fs::remove_file(&gz_path)?;
             Ok(())
         };
-        if result.is_err() {
-            PLUGIN_RPC.window_show_message(
-                MessageType::ERROR,
-                format!("can't download rust-analyzer, please use server path in the settings."),
-            );
-            return Ok(());
+        if let Err(err) = result {
+            return Err(anyhow!(
+                "can't download rust-analyzer because '{}'. Please use server path in the settings.",
+                err.to_string()
+            ));
         }
     }
 
-    let volt_uri = std::env::var("VOLT_URI")?;
-    let server_path = Url::parse(&volt_uri)?.join(&file_name)?;
-    PLUGIN_RPC.start_lsp(
-        server_path,
+    return Ok((
+        Url::parse(&format!("urn:{}", VoltEnvironment::uri()?))?.join(&file_name)?,
         Vec::new(),
-        vec![DocumentFilter {
-            language: Some("rust".to_string()),
-            scheme: None,
-            pattern: None,
-        }],
+        document_filters,
         params.initialization_options,
-    );
-    Ok(())
+    ));
 }
 
 impl LapcePlugin for State {
-    fn handle_request(&mut self, _id: u64, method: String, params: Value) {
+    fn handle_request(&mut self, id: u64, method: String, params: Value) {
         #[allow(clippy::single_match)]
         match method.as_str() {
-            Initialize::METHOD => {
-                let params: InitializeParams = serde_json::from_value(params).unwrap();
-                if let Err(e) = initialize(params) {
-                    PLUGIN_RPC.stderr(&format!("plugin returned with error: {e}"))
+            Initialize::METHOD => match calculate_lsp_params(params.clone()) {
+                Ok((uri, args, filters, params)) => {
+                    PLUGIN_RPC.start_lsp(uri, args, filters, params).unwrap();
+                    PLUGIN_RPC
+                        .host_success(id, InitializeResult::default())
+                        .unwrap()
                 }
-            }
-            _ => {}
-        }
+                Err(err) => PLUGIN_RPC.host_error(id, err.to_string()).unwrap(),
+            },
+            o => PLUGIN_RPC
+                .host_error(id, format!("Plugin does not understand method '{o}'"))
+                .unwrap(),
+        };
     }
 }
