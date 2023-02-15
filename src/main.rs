@@ -90,7 +90,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     if !file_path.exists() {
         let result: Result<()> = {
             let url = format!(
-                "https://github.com/rust-lang/rust-analyzer/releases/download/2023-01-02/{}.gz",
+                "https://github.com/rust-lang/rust-analyzer/releases/download/2023-02-13/{}.gz",
                 file_name
             );
             let mut resp = Http::get(&url)?;
