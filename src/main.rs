@@ -93,19 +93,21 @@ fn initialize(params: InitializeParams) -> Result<()> {
                 "https://github.com/rust-lang/rust-analyzer/releases/download/2023-01-02/{}.gz",
                 file_name
             );
-            let mut resp = Http::get(&url)?;
-            let body = resp.body_read_all()?;
-            std::fs::write(&gz_path, body)?;
-            let mut gz = GzDecoder::new(File::open(&gz_path)?);
-            let mut file = File::create(&file_path)?;
-            std::io::copy(&mut gz, &mut file)?;
+            {
+                let mut resp = Http::get(&url)?;
+                let body = resp.body_read_all()?;
+                std::fs::write(&gz_path, body)?;
+                let mut gz = GzDecoder::new(File::open(&gz_path)?);
+                let mut file = File::create(&file_path)?;
+                std::io::copy(&mut gz, &mut file)?;
+            }
             std::fs::remove_file(&gz_path)?;
             Ok(())
         };
         if result.is_err() {
             PLUGIN_RPC.window_show_message(
                 MessageType::ERROR,
-                format!("can't download rust-analyzer, please use server path in the settings."),
+                "can't download rust-analyzer, please use server path in the settings.".to_string(),
             );
             return Ok(());
         }
