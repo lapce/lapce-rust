@@ -23,6 +23,6 @@ description = "Whether to show native rust-analyzer diagnostics."
 default = true
 description = "Whether to show native rust-analyzer diagnostics."
 
-[config."checkOnSave.command"]
+[config."check.command"]
 default = "check"
 description = "Cargo command to use for `cargo check`."
