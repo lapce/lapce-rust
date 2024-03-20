@@ -45,21 +45,8 @@ fn initialize(params: InitializeParams) -> Result<()> {
         });
 
     if let Some(server_path) = server_path {
-        let program = match std::env::var("VOLT_OS").as_deref() {
-            Ok("windows") => "where",
-            _ => "which",
-        };
-        let exits = PLUGIN_RPC
-            .execute_process(program.to_string(), vec![server_path.to_string()])
-            .map(|r| r.success)
-            .unwrap_or(false);
-        if !exits {
-            PLUGIN_RPC.window_show_message(
-                MessageType::ERROR,
-                format!("server path {server_path} couldn't be found, please check"),
-            );
-            return Ok(());
-        }
+        // TODO: once nightly is released, update plugin api to use request version of start lsp
+        // that will inform us of the error
         PLUGIN_RPC.start_lsp(
             Url::parse(&format!("urn:{}", server_path))?,
             Vec::new(),
