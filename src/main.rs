@@ -69,6 +69,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
         Ok("linux") => "unknown-linux-gnu",
         Ok("macos") => "apple-darwin",
         Ok("windows") => "pc-windows-msvc",
+
         _ => return Ok(()),
     };
     let file_name = format!("rust-analyzer-{}-{}", arch, os);
@@ -77,7 +78,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     if !file_path.exists() {
         let result: Result<()> = {
             let url = format!(
-                "https://github.com/rust-lang/rust-analyzer/releases/download/2024-01-08/{}.gz",
+                "https://github.com/rust-lang/rust-analyzer/releases/download/2024-03-25/{}.gz",
                 file_name
             );
             {

@@ -1,5 +1,5 @@
 name = "lapce-rust"
-version = "0.3.1799"
+version = "0.3.1896"
 author = "Lapce"
 display-name = "Rust"
 description = "Rust for Lapce: powered by Rust Analyzer"
@@ -23,6 +23,10 @@ description = "Whether to show native rust-analyzer diagnostics."
 default = true
 description = "Whether to show native rust-analyzer diagnostics."
 
-[config."checkOnSave.command"]
+[config."checkOnSave"]
+default = true
+description = "Run the check command for diagnostics on save."
+
+[config."check.command"]
 default = "check"
 description = "Cargo command to use for `cargo check`."

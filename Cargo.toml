@@ -1,6 +1,6 @@
 [package]
 name = "lapce-rust"
-version = "0.3.1799"
+version = "0.3.1896"
 edition = "2021"
 
 [dependencies]
