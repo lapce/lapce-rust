@@ -78,7 +78,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     if !file_path.exists() {
         let result: Result<()> = {
             let url = format!(
-                "https://github.com/rust-lang/rust-analyzer/releases/download/2024-03-25/{}.gz",
+                "https://github.com/rust-lang/rust-analyzer/releases/download/2024-04-22/{}.gz",
                 file_name
             );
             {

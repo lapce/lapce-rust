@@ -133,7 +133,7 @@ dependencies = [
 
 [[package]]
 name = "lapce-rust"
-version = "0.3.1896"
+version = "0.3.1932"
 dependencies = [
  "anyhow",
  "flate2",
