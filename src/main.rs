@@ -44,17 +44,26 @@ fn initialize(params: InitializeParams) -> Result<()> {
             }
         });
 
+    let document_filter = vec![
+        DocumentFilter {
+            language: Some("rust".to_string()),
+            scheme: Some("file".to_string()),
+            pattern: Some("**/**.rs".to_string()),
+        },
+        DocumentFilter {
+            language: Some("rust".to_string()),
+            scheme: Some("file".to_string()),
+            pattern: Some("**/Cargo.toml".to_string()),
+        },
+    ];
+
     if let Some(server_path) = server_path {
         // TODO: once nightly is released, update plugin api to use request version of start lsp
         // that will inform us of the error
         PLUGIN_RPC.start_lsp(
             Url::parse(&format!("urn:{}", server_path))?,
             Vec::new(),
-            vec![DocumentFilter {
-                language: Some("rust".to_string()),
-                scheme: None,
-                pattern: None,
-            }],
+            document_filter,
             params.initialization_options,
         );
         return Ok(());
@@ -106,11 +115,7 @@ fn initialize(params: InitializeParams) -> Result<()> {
     PLUGIN_RPC.start_lsp(
         server_path,
         Vec::new(),
-        vec![DocumentFilter {
-            language: Some("rust".to_string()),
-            scheme: None,
-            pattern: None,
-        }],
+        document_filter,
         params.initialization_options,
     );
     Ok(())
