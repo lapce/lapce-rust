@@ -1,0 +1,18 @@
+on:
+    workflow_dispatch:
+    push:
+        tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+jobs:
+    _:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+            - run: |
+                cargo install --locked volts
+            - run: |
+                cargo build --release --target wasm32-wasi
+            - run: |
+                mv ./target/release/wasm32-wasi/lapce-rust.wasm ./
+            - run: |
+                volts --token ${{ secrets.VOLTS_TOKEN }} publish
